@@ -40,85 +40,98 @@
     <div class="container mx-auto p-4 md:p-8 max-w-3xl">
         <div class="bg-white p-8 rounded-2xl shadow-2xl">
             
-            <div class="text-center mb-10">
-                <h1 class="text-4xl font-bold text-slate-800">AI 텍스트 분석기</h1>
-                <p class="text-slate-500 mt-3">AI 기반 텍스트 심층 분석 도구</p>
-            </div>
-
-            <!-- 텍스트 입력 영역 -->
-            <div class="mb-6">
-                <label for="original-text" class="text-lg font-semibold text-slate-700 mb-2 block">원문 텍스트</label>
-                <textarea id="original-text" rows="12" class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none" placeholder="뉴스 기사, 보고서, 논문 등 분석하고 싶은 글을 입력하세요..."></textarea>
-            </div>
-
-            <!-- 요약 옵션 -->
-            <div class="mb-8">
-                <label class="text-lg font-semibold text-slate-700 mb-3 block">요약 길이</label>
-                <div class="grid grid-cols-3 gap-3">
-                    <label class="radio-label cursor-pointer">
-                        <input type="radio" name="summary-length" value="핵심 한 문장" class="sr-only">
-                        <div class="text-center p-3 border-2 border-slate-200 rounded-lg transition hover:border-blue-400">핵심 1줄</div>
-                    </label>
-                    <label class="radio-label cursor-pointer">
-                        <input type="radio" name="summary-length" value="세 문장" class="sr-only" checked>
-                        <div class="text-center p-3 border-2 border-slate-200 rounded-lg transition hover:border-blue-400">기본 3줄</div>
-                    </label>
-                    <label class="radio-label cursor-pointer">
-                        <input type="radio" name="summary-length" value="자세한 요약 (5문장)" class="sr-only">
-                        <div class="text-center p-3 border-2 border-slate-200 rounded-lg transition hover:border-blue-400">자세히 5줄</div>
-                    </label>
+            <!-- API Key 입력 섹션 -->
+            <div id="api-key-section" class="mb-8 p-4 bg-yellow-50 border border-yellow-300 rounded-lg">
+                <label for="api-key-input" class="block font-bold text-yellow-800 mb-2">API Key 설정</label>
+                <p class="text-sm text-yellow-700 mb-2">프로그램을 사용하려면 무료 Google AI API Key가 필요합니다. 한 번만 저장하면 계속 사용할 수 있습니다.</p>
+                <div class="flex gap-2">
+                    <input type="password" id="api-key-input" class="w-full p-2 border border-yellow-400 rounded-lg" placeholder="API Key를 여기에 붙여넣으세요">
+                    <button onclick="saveApiKey()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-5 py-2 rounded-lg transition whitespace-nowrap">저장</button>
                 </div>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-sm text-yellow-800 hover:underline mt-1 inline-block">API Key 발급받기</a>
             </div>
 
-            <div class="text-center">
-                <button onclick="runAnalysis()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    분석 실행하기 🚀
-                </button>
-            </div>
-
-            <!-- 결과 표시 영역 -->
-            <div id="result-container" class="mt-12 hidden">
-                <div class="flex justify-center mb-4">
-                    <div id="loader" class="loader"></div>
+            <div id="main-content" class="hidden">
+                <div class="text-center mb-10">
+                    <h1 class="text-4xl font-bold text-slate-800">AI 텍스트 분석기</h1>
+                    <p class="text-slate-500 mt-3">AI 기반 텍스트 심층 분석 도구</p>
                 </div>
-                <p id="status" class="text-center font-semibold text-blue-700 mb-6"></p>
 
-                <div id="analysis-output" class="hidden space-y-6">
-                    <!-- 요약 결과 -->
-                    <div class="bg-slate-50 p-6 rounded-lg">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-bold text-slate-800">📝 AI 요약 결과</h2>
-                            <button onclick="copyToClipboard(summaryTextElement.innerText, '요약 내용이')" class="flex items-center bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg text-sm transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                복사하기
-                            </button>
-                        </div>
-                        <div id="summary-text" class="text-slate-700 leading-relaxed whitespace-pre-wrap"></div>
+                <!-- 텍스트 입력 영역 -->
+                <div class="mb-6">
+                    <label for="original-text" class="text-lg font-semibold text-slate-700 mb-2 block">원문 텍스트</label>
+                    <textarea id="original-text" rows="12" class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none" placeholder="뉴스 기사, 보고서, 논문 등 분석하고 싶은 글을 입력하세요..."></textarea>
+                </div>
+
+                <!-- 요약 옵션 -->
+                <div class="mb-8">
+                    <label class="text-lg font-semibold text-slate-700 mb-3 block">요약 길이</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="radio-label cursor-pointer">
+                            <input type="radio" name="summary-length" value="핵심 한 문장" class="sr-only">
+                            <div class="text-center p-3 border-2 border-slate-200 rounded-lg transition hover:border-blue-400">핵심 1줄</div>
+                        </label>
+                        <label class="radio-label cursor-pointer">
+                            <input type="radio" name="summary-length" value="세 문장" class="sr-only" checked>
+                            <div class="text-center p-3 border-2 border-slate-200 rounded-lg transition hover:border-blue-400">기본 3줄</div>
+                        </label>
+                        <label class="radio-label cursor-pointer">
+                            <input type="radio" name="summary-length" value="자세한 요약 (5문장)" class="sr-only">
+                            <div class="text-center p-3 border-2 border-slate-200 rounded-lg transition hover:border-blue-400">자세히 5줄</div>
+                        </label>
                     </div>
-                    <!-- 부가 기능 결과 1 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                </div>
+
+                <div class="text-center">
+                    <button onclick="runAnalysis()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        분석 실행하기 🚀
+                    </button>
+                </div>
+
+                <!-- 결과 표시 영역 -->
+                <div id="result-container" class="mt-12 hidden">
+                    <div class="flex justify-center mb-4">
+                        <div id="loader" class="loader"></div>
+                    </div>
+                    <p id="status" class="text-center font-semibold text-blue-700 mb-6"></p>
+
+                    <div id="analysis-output" class="hidden space-y-6">
+                        <!-- 요약 결과 -->
                         <div class="bg-slate-50 p-6 rounded-lg">
-                             <h2 class="text-xl font-bold text-slate-800 mb-4">🔑 핵심 키워드</h2>
-                             <div id="keywords-list" class="flex flex-wrap gap-2"></div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-bold text-slate-800">📝 AI 요약 결과</h2>
+                                <button onclick="copyToClipboard(summaryTextElement.innerText, '요약 내용이')" class="flex items-center bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg text-sm transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    복사하기
+                                </button>
+                            </div>
+                            <div id="summary-text" class="text-slate-700 leading-relaxed whitespace-pre-wrap"></div>
                         </div>
+                        <!-- 부가 기능 결과 1 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-slate-50 p-6 rounded-lg">
+                                 <h2 class="text-xl font-bold text-slate-800 mb-4">🔑 핵심 키워드</h2>
+                                 <div id="keywords-list" class="flex flex-wrap gap-2"></div>
+                            </div>
+                            <div class="bg-slate-50 p-6 rounded-lg">
+                                 <h2 class="text-xl font-bold text-slate-800 mb-4">📊 텍스트 난이도</h2>
+                                 <p id="difficulty-level" class="text-2xl font-bold text-blue-600"></p>
+                            </div>
+                        </div>
+                        <!-- 어휘 검색 기능 -->
                         <div class="bg-slate-50 p-6 rounded-lg">
-                             <h2 class="text-xl font-bold text-slate-800 mb-4">📊 텍스트 난이도</h2>
-                             <p id="difficulty-level" class="text-2xl font-bold text-blue-600"></p>
+                            <h2 class="text-xl font-bold text-slate-800 mb-4">📖 궁금한 어휘 검색</h2>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input type="text" id="vocab-input" class="w-full p-2 border border-slate-300 rounded-lg" placeholder="본문 속 모르는 단어를 입력하세요">
+                                <button onclick="searchVocabulary()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition whitespace-nowrap">검색</button>
+                            </div>
+                            <div id="vocab-result" class="mt-4 text-slate-700 min-h-[3rem]"></div>
                         </div>
-                    </div>
-                    <!-- 어휘 검색 기능 -->
-                    <div class="bg-slate-50 p-6 rounded-lg">
-                        <h2 class="text-xl font-bold text-slate-800 mb-4">📖 궁금한 어휘 검색</h2>
-                        <div class="flex flex-col sm:flex-row gap-2">
-                            <input type="text" id="vocab-input" class="w-full p-2 border border-slate-300 rounded-lg" placeholder="본문 속 모르는 단어를 입력하세요">
-                            <button onclick="searchVocabulary()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition whitespace-nowrap">검색</button>
+                        <!-- 예상 질문 생성 결과 -->
+                        <div class="bg-slate-50 p-6 rounded-lg">
+                            <h2 class="text-xl font-bold text-slate-800 mb-4">🤔 예상 질문</h2>
+                            <ul id="questions-list" class="list-decimal list-inside space-y-2 text-slate-700"></ul>
                         </div>
-                        <div id="vocab-result" class="mt-4 text-slate-700 min-h-[3rem]"></div>
-                    </div>
-                    <!-- 예상 질문 생성 결과 -->
-                    <div class="bg-slate-50 p-6 rounded-lg">
-                        <h2 class="text-xl font-bold text-slate-800 mb-4">🤔 예상 질문</h2>
-                        <ul id="questions-list" class="list-decimal list-inside space-y-2 text-slate-700"></ul>
                     </div>
                 </div>
             </div>
@@ -126,7 +139,39 @@
     </div>
 
     <script>
-        // DOM 요소 가져오기
+        // --- API Key 관련 로직 ---
+        const apiKeySection = document.getElementById('api-key-section');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const mainContent = document.getElementById('main-content');
+        const API_KEY_STORAGE = 'gemini_api_key';
+
+        function saveApiKey() {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem(API_KEY_STORAGE, key);
+                checkApiKey();
+            } else {
+                alert('API Key를 입력해주세요.');
+            }
+        }
+
+        function checkApiKey() {
+            const savedKey = localStorage.getItem(API_KEY_STORAGE);
+            if (savedKey) {
+                apiKeySection.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                return savedKey;
+            } else {
+                apiKeySection.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+                return null;
+            }
+        }
+        
+        // 페이지 로드 시 API Key 확인
+        document.addEventListener('DOMContentLoaded', checkApiKey);
+
+        // --- 기존 로직 ---
         const originalTextInput = document.getElementById('original-text');
         const resultContainer = document.getElementById('result-container');
         const loader = document.getElementById('loader');
@@ -154,6 +199,45 @@
             document.body.removeChild(textArea);
         }
 
+        async function fetchAI(prompt, isJson = false) {
+            const apiKey = checkApiKey();
+            if (!apiKey) {
+                throw new Error("API Key가 설정되지 않았습니다.");
+            }
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+            if (isJson) {
+                payload.generationConfig = { responseMimeType: "application/json" };
+            }
+
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    const result = await response.json();
+                    if (!result.candidates || result.candidates.length === 0) throw new Error("Invalid API response");
+                    
+                    let responseText = result.candidates[0].content.parts[0].text;
+                    if (isJson) {
+                        const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
+                        responseText = jsonMatch ? jsonMatch[1] : responseText;
+                        return JSON.parse(responseText);
+                    }
+                    return responseText;
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed:`, error);
+                    if (i === 2) throw error;
+                    await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+                }
+            }
+        }
+
         async function runAnalysis() {
             const textToAnalyze = originalTextInput.value;
             if (textToAnalyze.trim().length < 100) {
@@ -167,7 +251,7 @@
             loader.style.display = 'block';
             statusElement.textContent = 'AI가 텍스트를 정밀 분석하고 있습니다...';
             analysisOutput.classList.add('hidden');
-            vocabResult.innerHTML = ''; // 이전 검색 결과 초기화
+            vocabResult.innerHTML = '';
 
             try {
                 const prompt = `
@@ -176,42 +260,12 @@
                     2. 'keywords': 가장 중요한 핵심 키워드 5개를 담은 배열
                     3. 'difficulty': 텍스트의 난이도를 "초급", "중급", "고급" 중 하나로 평가
                     4. 'questions': 이 텍스트의 핵심 내용으로 만들 수 있는 예상 질문 3개를 담은 배열
-
                     ---
                     ${textToAnalyze}
                 `;
                 
-                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = { 
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                    }
-                };
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const analysisData = await fetchAI(prompt, true);
                 
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) throw new Error(`API 요청 실패: ${response.statusText}`);
-
-                const result = await response.json();
-                
-                // --- [오류 수정] API 응답 텍스트를 정리하는 로직 추가 ---
-                let responseText = result.candidates[0].content.parts[0].text;
-                // API가 가끔 ```json ... ``` 형식으로 응답을 감싸는 경우가 있어, 순수 JSON만 추출합니다.
-                const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
-                if (jsonMatch && jsonMatch[1]) {
-                    responseText = jsonMatch[1];
-                }
-
-                const analysisData = JSON.parse(responseText);
-                
-                // --- 결과 화면 업데이트 ---
                 summaryTextElement.textContent = analysisData.summary;
                 
                 keywordsListElement.innerHTML = '';
@@ -237,7 +291,7 @@
 
             } catch (error) {
                 loader.style.display = 'none';
-                statusElement.textContent = '❌ 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                statusElement.textContent = '❌ 오류가 발생했습니다. API Key가 올바른지 확인하거나, 잠시 후 다시 시도해주세요.';
                 console.error("분석 오류:", error);
             }
         }
@@ -253,22 +307,7 @@
 
             try {
                 const prompt = `'${word}'라는 단어의 뜻을 한 문장으로 간결하게 설명해줘.`;
-                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = { contents: chatHistory };
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) throw new Error('API 요청 실패');
-                
-                const result = await response.json();
-                const definition = result.candidates[0].content.parts[0].text;
-                
+                const definition = await fetchAI(prompt);
                 vocabResult.innerHTML = `<p>${definition}</p>`;
 
             } catch (error) {
